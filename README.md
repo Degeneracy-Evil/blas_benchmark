@@ -140,31 +140,30 @@ cblas_dgemm = 2.0
 ## 8. 项目结构
 ```bash
 blas_benchmark/
-├── xmake.lua                     # Xmake构建配置文件（主要构建文件）
-├── README.md                      # 项目说明文档（您提供的内容）
-├── config/
-│   └── config.toml               # 默认的TOML配置文件（示例内容见文档）
-├── src/
-│   ├── main.cpp                  # 程序主入口点
-│   ├── benchmark/
-│   │   ├── benchmark.h           # 基准测试核心头文件
-│   │   ├── benchmark.cpp         # 基准测试核心实现
-│   │   ├── blas_functions.h      # BLAS函数包装头文件
-│   │   └── blas_functions.cpp    # BLAS函数包装实现
-│   ├── utils/
-│   │   ├── system_info.h         # 系统信息收集头文件
-│   │   ├── system_info.cpp       # 系统信息收集实现
-│   │   ├── timer.h               # 高精度计时头文件
-│   │   └── timer.cpp             # 高精度计时实现
-│   └── config/
-│       ├── config_parser.h       # TOML配置解析头文件
-│       └── config_parser.cpp      # TOML配置解析实现
-├── thirdparty/                   # 第三方库（可选：如果不想用Xmake包管理）
-│   ├── CLI11/
-│   │   └── CLI11.hpp             # CLI11单头文件版本
-│   └── toml++/
-│       └── toml.hpp              # toml++单头文件版本
-└── build/                        # 构建输出目录（由Xmake自动创建）
+├── config.toml                # 默认的TOML配置文件
+├── LICENSE
+├── README.md
+├── src
+│   ├── benchmark
+│   │   ├── benchmark.cpp      # 基准测试
+│   │   ├── benchmark.h
+│   │   ├── blas_functions.cpp # BLAS函数包装
+│   │   └── blas_functions.h
+│   ├── config
+│   │   ├── config_parser.cpp  # TOML配置解析
+│   │   └── config_parser.h
+│   ├── main.cpp
+│   └── utils
+│       ├── system_info.cpp    # 系统信息收集
+│       ├── system_info.h
+│       ├── timer.cpp          # 高精度计时
+│       └── timer.h
+├── thirdparty
+│   ├── CLI11
+│   │   └── CLI11.hpp          # CLI11单头文件
+│   └── toml++
+│       └── toml.hpp           # toml++单头文件
+└── xmake.lua                  # Xmake构建配置
 ```
 
 ## 9. 备注
