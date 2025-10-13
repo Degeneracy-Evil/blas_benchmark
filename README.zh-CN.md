@@ -58,15 +58,15 @@
 权重按照每个函数的重要性、业界使用频次来进行给分（全部先暂定为1.0）。
 
 ## 3. 依赖库
--   **[OpenBLAS](https://www.openblas.net/):** 提供高性能 BLAS 实现。
--   **[CLI11](https://github.com/CLIUtils/CLI11):** 用于解析命令行参数。*(作为头文件库包含在项目中)*
--   **[toml++](https://github.com/marzer/tomlplusplus):** 解析toml配置文件。
+- **[OpenBLAS](https://www.openblas.net/):** 提供高性能 BLAS 实现。
+- **[CLI11](https://github.com/CLIUtils/CLI11):** 用于解析命令行参数。*(作为头文件库包含在项目中)*
+- **[toml++](https://github.com/marzer/tomlplusplus):** 解析toml配置文件。
 
 ## 4. 构建与运行
 本项目使用 **Xmake** 作为构建系统。
-1.  **安装 Xmake:** 请参考 [Xmake 官方文档](https://xmake.io/#/guide/installation)。
-2.  **构建项目:** 在项目根目录执行 `xmake`。
-3.  **运行基准测试:**
+1. **安装 Xmake:** 请参考 [Xmake 官方文档](https://xmake.io/#/guide/installation)。
+2. **构建项目:** 在项目根目录执行 `xmake`。
+3. **运行基准测试:**
 ```bash
 # 基本运行 (使用默认参数)
 xmake run blas_benchmark
