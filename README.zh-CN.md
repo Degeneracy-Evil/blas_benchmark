@@ -9,7 +9,7 @@
 - 支持自定义问题规模、线程数和测试循环次数
 - 包含预热运行和多次测量取平均，提高测试结果的稳定性
 - 支持 Markdown 和 CSV 格式的结果输出
-- 使用 C++23 标准和 Xmake 构建系统
+- 使用 C++23 标准和 Xmake 构建系统（推荐使用Ninja）
 
 **运行环境：** 本框架为纯命令行程序，主要支持 **Linux** 系统（例如 Ubuntu 24.04）。
 
@@ -26,7 +26,7 @@
 ### 2.2 测试配置
 - **问题规模 (Problem Size):**
   - **Level 1 (向量):** 例如 `10^4`, `10^7` 个元素。使用 `-l1,--level1 <num1>` 进行指定。
-  - **Level 2 (矩阵-向量):** 例如 `128x128`, `256x256`, `512x512`, `1024x1024` 矩阵。使用 `-l2,--level2 <num1,num2>` 进行指定。
+  - **Level 2 (矩阵-向量):** 例如 `128x128`, `1024x1024` 矩阵。使用 `-l2,--level2 <num1,num2>` 进行指定。
   - **Level 3 (矩阵-矩阵):** 例如 `(128, 128, 128)`, `(512, 512, 512)`, `(4096, 4096, 4096)`。使用 `-l3,--level3 <num1,num2,num3>` 进行指定。
 - **线程配置 (Thread Configuration):** `-t,--threads <num>` 指定使用的线程数 (`1` 表示单线程，默认为单线程)。该选项将强制覆盖 `OPENBLAS_NUM_THREADS`。
 - **测试循环次数 (Iterations):** `-c,--cycle <num>` 指定每个测试用例运行的次数（用于计算平均时间）。
@@ -54,13 +54,14 @@
 | **Avg Time (ms)** | 函数执行的平均时间（毫秒），基于多次运行计算得出。|
 | **GFLOPS**      | 根据函数操作的理论浮点运算次数 (FLOPs) 和平均时间计算得出的性能指标。|
 
-最后会对于每个函数的测试得分为 $ score_f = GFLOPS \times weight $。
-权重按照每个函数的重要性、业界使用频次来进行给分（全部先暂定为1.0）。
+最终测试得分： $ score_f = GFLOPS \times weight $
+（初始默认值暂定为1.0）
 
 ## 3. 依赖库
 - **[OpenBLAS](https://www.openblas.net/):** 提供高性能 BLAS 实现。
 - **[CLI11](https://github.com/CLIUtils/CLI11):** 用于解析命令行参数。*(作为头文件库包含在项目中)*
 - **[toml++](https://github.com/marzer/tomlplusplus):** 解析toml配置文件。
+- **[spdlog](https://github.com/gabime/spdlog):** 日志库。
 
 ## 4. 构建与运行
 本项目使用 **Xmake** 作为构建系统。
@@ -152,4 +153,4 @@ blas_benchmark/
 ```
 
 ## 9. 备注
-该项目主要是用于个人学会OpenBLAS，C++ 23，Git，Xmake，toml++，CLI11 的使用。
+该项目主要是用于个人学会OpenBLAS,C++,23,Git,Xmake,toml++,CLI11,spdlog,ninja 的使用。

@@ -9,7 +9,7 @@ This project is a **C++23**-based **OpenBLAS** performance testing framework des
 - Support custom problem sizes, thread counts, and test iterations
 - Include warmup runs and multiple measurements for stable results
 - Output results in Markdown or CSV format
-- Built with C++23 standard and Xmake build system
+- Built with C++23 standard and Xmake build system(Recommend Ninja)
 
 **Environment:** Pure command-line application, primarily supports **Linux** systems (e.g., Ubuntu 24.04).
 
@@ -61,6 +61,7 @@ Function score: $ score_f = GFLOPS \times weight $
 - **[OpenBLAS](https://www.openblas.net/):** High-performance BLAS implementation
 - **[CLI11](https://github.com/CLIUtils/CLI11):** Command-line parsing (header-only)
 - **[toml++](https://github.com/marzer/tomlplusplus):** TOML configuration parsing
+- **[spdlog](https://github.com/gabime/spdlog):** Logging library
 
 ## 4. Build & Run
 Uses **Xmake** build system:
@@ -79,7 +80,7 @@ xmake run blas_benchmark -t 8 -c 10 -f csv -o gemm_results.csv
 ## 5. Testing Recommendations
 - **System State:** Ensure low system load and stable CPU frequency (consider `cpupower` performance mode)
 - **Warmup:** Framework includes warmup. For strict tests, pre-run full test set
-- **Size Selection:** Cover L1 cache to main memory ranges (e.g., 4096x4096x4096 for Level 3 peak performance)
+- **Size Selection:** Cover ranges from L1 cache to main memory (e.g., 4096x4096x4096 for Level 3 peak performance)
 - **Threads:** Test single-thread (`--threads 1`) and multi-thread (e.g., `--threads $(nproc)`)
 
 ## 6. FLOPS Calculation
@@ -152,4 +153,4 @@ blas_benchmark/
 ```
 
 ## 9. Notes
-Personal project for learning OpenBLAS, C++23, Git, Xmake, toml++, and CLI11.
+Personal project for learning OpenBLAS, C++23, Git, Xmake, toml++, CLI11, spdlog, ninja.
