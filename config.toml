@@ -1,0 +1,38 @@
+# BLAS Benchmark Configuration
+# This file defines which BLAS functions to test and their weights
+
+[functions]
+# Level 1: Vector-vector operations
+level1 = ["cblas_ddot", "cblas_daxpy", "cblas_dscal"]
+
+# Level 2: Matrix-vector operations
+level2 = ["cblas_dgemv"]
+
+# Level 3: Matrix-matrix operations
+level3 = ["cblas_dgemm"]
+
+[weights.level1]
+cblas_ddot = 1.0
+cblas_daxpy = 1.0
+cblas_dscal = 0.5
+
+[weights.level2]
+cblas_dgemv = 1.5
+
+[weights.level3]
+cblas_dgemm = 2.0
+
+[defaults]
+# Default test parameters
+threads = 1
+warmup = 3
+cycles = 5
+flush_cache = true
+
+# Default sizes for each level
+level1_size = 1000000
+level2_m = 1024
+level2_n = 1024
+level3_m = 1024
+level3_n = 1024
+level3_k = 1024

@@ -1,0 +1,24 @@
+CompileFlags:
+  CompilationDatabase: .
+  Add:
+    - -std=c++23
+    - -stdlib=libc++
+    - -I src
+    - -I thirdparty/CLI11/include
+    - -I thirdparty/tomlplusplus
+    - -I thirdparty/spdlog/include
+    - -I /usr/include/x86_64-linux-gnu/openblas-pthread
+  Remove:
+    - -march=native
+    - -ffast-math
+    - -Wunused-command-line-argument
+    - -Wc++23-extensions
+
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+    Remove:
+      - modernize-use-trailing-return-type
+      - readability-identifier-length
+      - cppcoreguidelines-*
+      - bugprone-*

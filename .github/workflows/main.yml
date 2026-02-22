@@ -1,0 +1,66 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      
+      - name: Install Clang 18 and libc++
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-18 libc++-18-dev libc++abi-18-dev lld-18
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-18 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-18 100
+      
+      - name: Install Xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      
+      - name: Install OpenBLAS
+        run: sudo apt-get install -y libopenblas-dev
+      
+      - name: Cache Xmake
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.xmake
+            .xmake
+          key: xmake-${{ runner.os }}-${{ hashFiles('xmake.lua', '.gitmodules') }}
+          restore-keys: xmake-${{ runner.os }}-
+      
+      - name: Configure and Build
+        run: |
+          xmake f -m release -y
+          xmake -j$(nproc)
+      
+      - name: Generate compile_commands.json
+        run: xmake compdb
+      
+      - name: Run benchmark test (Level 1)
+        run: xmake run cblas_benchmark --level1 10000 -c 3
+      
+      - name: Run benchmark test (Level 2)
+        run: xmake run cblas_benchmark --level2 256,256 -c 2
+      
+      - name: Run benchmark test (Level 3)
+        run: xmake run cblas_benchmark --level3 128,128,128 -c 2
+      
+      - name: Verify help output
+        run: xmake run cblas_benchmark --help
