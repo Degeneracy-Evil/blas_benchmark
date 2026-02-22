@@ -29,6 +29,18 @@ std::string read_file(const std::string& path)
     return buffer.str();
 }
 
+// Helper function to trim whitespace and newlines from string
+std::string trim(const std::string& str)
+{
+    auto start = str.find_first_not_of(" \t\n\r");
+    if (start == std::string::npos)
+    {
+        return "";
+    }
+    auto end = str.find_last_not_of(" \t\n\r");
+    return str.substr(start, end - start + 1);
+}
+
 // Helper function to parse CPU info from /proc/cpuinfo on Linux
 std::unordered_map<std::string, std::string> parse_cpuinfo()
 {
@@ -194,10 +206,10 @@ std::size_t SystemInfoCollector::get_l1_cache() const
 {
 #ifdef __linux__
     // Read L1 data cache size from sysfs
-    std::string cache_size = read_file("/sys/devices/system/cpu/cpu0/cache/index0/size");
+    std::string cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index0/size"));
     if (cache_size.empty())
     {
-        cache_size = read_file("/sys/devices/system/cpu/cpu0/cache/index1/size");
+        cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index1/size"));
     }
 
     if (!cache_size.empty())
@@ -230,14 +242,13 @@ std::size_t SystemInfoCollector::get_l2_cache() const
 {
 #ifdef __linux__
     // Read L2 cache size from sysfs
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 8; ++i)
     {
-        std::string level_path = "/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/level";
-        std::string level_str = read_file(level_path);
+        std::string level_str = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/level"));
 
-        if (level_str == "2\n")
+        if (level_str == "2")
         {
-            std::string cache_size = read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/size");
+            std::string cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/size"));
             if (!cache_size.empty())
             {
                 std::size_t multiplier = 1;
@@ -269,14 +280,13 @@ std::size_t SystemInfoCollector::get_l3_cache() const
 {
 #ifdef __linux__
     // Read L3 cache size from sysfs
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 8; ++i)
     {
-        std::string level_path = "/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/level";
-        std::string level_str = read_file(level_path);
+        std::string level_str = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/level"));
 
-        if (level_str == "3\n")
+        if (level_str == "3")
         {
-            std::string cache_size = read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/size");
+            std::string cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/size"));
             if (!cache_size.empty())
             {
                 std::size_t multiplier = 1;
