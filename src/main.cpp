@@ -130,14 +130,14 @@ int main(int argc, char *argv[])
         ->default_val(5);
     app.add_option("-w,--warmup", warmup, "Number of warmup iterations")
         ->default_val(3);
-    app.add_option("--level1", level1_str, "Level 1 vector size (N)");
-    app.add_option("--level2", level2_str, "Level 2 matrix size (M,N)");
-    app.add_option("--level3", level3_str, "Level 3 matrix size (M,N,K)");
+    app.add_option("-1,--level1", level1_str, "Level 1 vector size (N)");
+    app.add_option("-2,--level2", level2_str, "Level 2 matrix size (M,N)");
+    app.add_option("-3,--level3", level3_str, "Level 3 matrix size (M,N,K)");
     app.add_option("-o,--output", output_file, "Output file path")
         ->default_val("");
     app.add_option("-f,--format", format, "Output format (markdown|csv)")
         ->default_val("markdown");
-    app.add_option("--config", config_file, "Configuration file path")
+    app.add_option("-C,--config", config_file, "Configuration file path")
         ->default_val("config.toml");
     app.add_flag("-v,--verbose", verbose, "Enable verbose output");
     app.add_flag("-s,--system-info", show_system_info,

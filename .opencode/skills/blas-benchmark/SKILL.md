@@ -186,11 +186,12 @@ private:
 | -t, --threads | int | 线程数 |
 | -c, --cycle | int | 测试迭代次数 |
 | -w, --warmup | int | 预热次数 |
-| -l1, --level1 | int | Level1 向量大小 |
-| -l2, --level2 | string | Level2 矩阵尺寸 (M,N) |
-| -l3, --level3 | string | Level3 矩阵尺寸 (M,N,K) |
+| -1, --level1 | int | Level1 向量大小 |
+| -2, --level2 | string | Level2 矩阵尺寸 (M,N) |
+| -3, --level3 | string | Level3 矩阵尺寸 (M,N,K) |
 | -o, --output | string | 输出文件路径 |
 | -f, --format | string | 输出格式 |
+| -C, --config | string | 配置文件路径 |
 
 ### 5.2 解析示例
 
@@ -198,7 +199,7 @@ private:
 CLI::App app{"BLAS Benchmark"};
 app.add_option("-t,--threads", threads, "Number of threads")->default_val(1);
 app.add_option("-c,--cycle", cycles, "Number of iterations");
-app.add_option("-l3,--level3", level3_str, "Level3 size (M,N,K)");
+app.add_option("-3,--level3", level3_str, "Level3 size (M,N,K)");
 CLI11_PARSE(app, argc, argv);
 ```
 
@@ -267,11 +268,11 @@ dgemm,M=1024,N=1024,K=1024,8,15.23,141.5
 
 ```bash
 # 单线程峰值测试
-xmake run cblas_benchmark -l3 4096,4096,4096 -c 10 -t 1
+xmake run cblas_benchmark -3 4096,4096,4096 -c 10 -t 1
 
 # 多线程扩展性测试
-xmake run cblas_benchmark -l3 2048,2048,2048 -c 5 -t $(nproc)
+xmake run cblas_benchmark -3 2048,2048,2048 -c 5 -t $(nproc)
 
 # 小规模快速验证
-xmake run cblas_benchmark -l1 10000 -l2 128,128 -l3 128,128,128 -c 3
+xmake run cblas_benchmark -1 10000 -2 128,128 -3 128,128,128 -c 3
 ```

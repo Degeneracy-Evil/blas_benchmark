@@ -76,7 +76,7 @@
 - [x] CPU model name
 - [x] Physical/logical core count
 - [x] CPU frequency
-- [ ] L1/L2/L3 cache size (partially working, needs improvement)
+- [x] L1/L2/L3 cache size
 - [x] Total memory
 - [x] OS name
 
@@ -111,12 +111,12 @@
 | -t, --threads | 1 | Number of OpenBLAS threads |
 | -c, --cycle | 5 | Number of benchmark cycles |
 | -w, --warmup | 3 | Number of warmup iterations |
-| --level1 | - | Level 1 vector size |
-| --level2 | - | Level 2 matrix size (M,N) |
-| --level3 | - | Level 3 matrix size (M,N,K) |
+| -1, --level1 | - | Level 1 vector size |
+| -2, --level2 | - | Level 2 matrix size (M,N) |
+| -3, --level3 | - | Level 3 matrix size (M,N,K) |
 | -o, --output | stdout | Output file path |
 | -f, --format | markdown | Output format |
-| --config | config.toml | Config file path |
+| -C, --config | config.toml | Config file path |
 | -v, --verbose | false | Enable debug logging |
 | -s, --system-info | false | Show system info only |
 
@@ -314,13 +314,13 @@ xmake run cblas_benchmark --help
 
 ## 8. Known Issues
 
-### 8.1 Cache Size Detection
+### 8.1 ~~Cache Size Detection~~ (FIXED)
 - **Problem:** L1/L2/L3 cache sizes not detected correctly on some systems
+- **Solution:** Added `trim()` helper to remove trailing newlines from sysfs file reads
 - **Location:** `src/utils/system_info.cpp`
-- **Impact:** Cache flush may use default 16MB instead of actual cache size
-- **Fix Needed:** Improve sysfs parsing or use fallback methods
+- **Status:** Fixed on 2026-02-22
 
-### 8.2 C++23 std::print Support
+### 8.2 ~~C++23 std::print Support~~ (FIXED)
 - **Problem:** Requires Clang 18+ with proper C++23 support
 - **Workaround:** Code uses std::println from <print> header
 - **Note:** GCC may need additional flags
@@ -330,9 +330,7 @@ xmake run cblas_benchmark --help
 ## 9. TODO List
 
 ### High Priority
-- [ ] Fix cache size detection
 - [ ] Add more BLAS functions (dsyrk, dtrsm)
-- [ ] Improve system info detection
 
 ### Medium Priority
 - [ ] Add single precision support
@@ -347,6 +345,11 @@ xmake run cblas_benchmark --help
 ---
 
 ## 10. Changelog
+
+### 2026-02-22 (3)
+- Fixed cache size detection bug (trailing newlines in sysfs files)
+- Added trim() helper function in system_info.cpp
+- Added short options for level1/2/3 (-1, -2, -3) and config (-C)
 
 ### 2026-02-22 (2)
 - Added GitHub Actions CI/CD workflow (.github/workflows/main.yml)

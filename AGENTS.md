@@ -33,13 +33,13 @@ xmake run cblas_benchmark -f csv -o out.csv        # CSV 格式输出
 
 ```bash
 # Level 1 (向量操作)
-xmake run cblas_benchmark -l1 1000000 -c 5
+xmake run cblas_benchmark -1 1000000 -c 5
 
 # Level 2 (矩阵-向量)
-xmake run cblas_benchmark -l2 1024,1024 -c 5
+xmake run cblas_benchmark -2 1024,1024 -c 5
 
 # Level 3 (矩阵-矩阵)
-xmake run cblas_benchmark -l3 1024,1024,1024 -c 5 -t 4
+xmake run cblas_benchmark -3 1024,1024,1024 -c 5 -t 4
 ```
 
 ## 2. 代码风格
@@ -122,11 +122,12 @@ spdlog::error("Failed: {}", path);
 | --threads | -t | 线程数 | 1 |
 | --cycle | -c | 迭代次数 | - |
 | --warmup | -w | 预热次数 | 3 |
-| --level1 | -l1 | Level1 向量大小 | - |
-| --level2 | -l2 | Level2 矩阵尺寸 | - |
-| --level3 | -l3 | Level3 矩阵尺寸 | - |
+| --level1 | -1 | Level1 向量大小 | - |
+| --level2 | -2 | Level2 矩阵尺寸 | - |
+| --level3 | -3 | Level3 矩阵尺寸 | - |
 | --output | -o | 输出文件 | stdout |
 | --format | -f | 输出格式 | markdown |
+| --config | -C | 配置文件路径 | config.toml |
 
 ## 5. 配置文件 (config.toml)
 
