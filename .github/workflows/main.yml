@@ -50,8 +50,8 @@ jobs:
           xmake build -v
 
       - name: Verify help output
-        run: xmake run cblas_benchmark --help
+        run: xmake run blas_benchmark --help
 
       - name: Run benchmark test
-        run: xmake run cblas_benchmark -1 10000 -2 256,256 -3 128,128,128 -c 2 -w 1 -t 2
+        run: xmake run blas_benchmark -1 10000 -2 256,256 -3 128,128,128 -c 2 -w 1 -t 2
 

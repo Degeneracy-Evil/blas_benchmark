@@ -9,7 +9,7 @@
 - 支持自定义问题规模、线程数和测试循环次数
 - 包含预热运行和缓存刷新，确保测量准确性
 - 支持 Markdown 和 CSV 格式的结果输出
-- 使用 C++23 标准和 Xmake 构建系统（推荐使用 Ninja）
+- 使用 C++23 标准和 Xmake 构建系统
 - 目前支持 CPU 的 CBLAS 框架，未来将要继续支持 Fortran 和 XPU 异构 BLAS 测试
 
 **运行环境：** 本框架为纯命令行程序，主要支持 **Linux** 系统（例如 Ubuntu 24.04）。
@@ -205,4 +205,4 @@ blas_benchmark/
 - GCC 13+ 理论上可行但未测试
 
 ## 10. 备注
-该项目主要是用于个人学习 OpenBLAS, C++23, Git, Xmake, toml++, CLI11, spdlog, ninja 的使用。
+该项目主要是用于个人学习 OpenBLAS, C++23, Git, Xmake, toml++, CLI11, spdlog, Ninja 的使用。

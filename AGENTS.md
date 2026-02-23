@@ -5,18 +5,14 @@
 ## 1. 构建与运行
 
 ### 环境要求
-- 构建系统: Xmake (推荐 Ninja)
+- 构建系统: Xmake
 - 编译器: Clang
 - C++ 标准: C++23
 
 ### 构建命令
 
 ```bash
-xmake f -m release          # Release 模式
-xmake f -m debug            # Debug 模式
 xmake                       # 构建
-xmake -j8                   # 并行构建
-xmake clean                 # 清理
 xmake f -c && xmake         # 完全重新构建
 ```
 
@@ -27,6 +23,8 @@ xmake run cblas_benchmark                          # 基本运行
 xmake run cblas_benchmark --help                   # 查看帮助
 xmake run cblas_benchmark -t 8 -c 10               # 8线程, 10次迭代
 xmake run cblas_benchmark -f csv -o out.csv        # CSV 格式输出
+xmake project -k compile_commands                  # 生成 `compile_commands.json`
+xmake project -k ninja                             # 使用 Ninja
 ```
 
 ### 测试单个 BLAS 函数
@@ -56,23 +54,11 @@ xmake run cblas_benchmark -3 1024,1024,1024 -c 5 -t 4
 | 成员变量 | snake_case + m_ 前缀 | m_config |
 | 模板参数 | PascalCase | typename T |
 
-### 文件组织
-
-```
-src/
-├── main.cpp
-├── benchmark/benchmark.h/cpp, blas_functions.h/cpp
-├── config/config_parser.h/cpp
-└── utils/timer.h/cpp, system_info.h/cpp
-```
-
 ### 头文件规范
 
 ```cpp
 #pragma once
 
-#include <chrono>
-#include <string>
 #include <vector>
 
 #include <spdlog/spdlog.h>
@@ -89,10 +75,11 @@ src/
 - 输出: 使用cpp23引入的std::println
 - 宏: 尽量不使用宏定义，最好使用inline和constexpr，若有特殊的地方也可以使用宏定义
 - 头文件: 使用`#pragma once`，不使用宏守卫
+
 ### 包含文件顺序
 
 1. 对应的头文件
-2. 系统头文件 (按字母顺序)
+2. 系统头文件
 3. 第三方库头文件
 4. 项目内部头文件
 
@@ -105,7 +92,7 @@ double              // BLAS 默认浮点类型
 auto result = benchmark.run();
 constexpr int DEFAULT_WARMUP = 3;
 
-// 错误处理
+// 错误处理(尝试使用std::expected)
 throw std::runtime_error("Config file not found: " + path);
 spdlog::info("Starting with {} threads", num_threads);
 spdlog::error("Failed: {}", path);
@@ -114,6 +101,7 @@ spdlog::error("Failed: {}", path);
 - 使用 RAII 管理资源
 - 优先使用智能指针
 - 避免裸指针和手动 new/delete
+- 优先使用std::expected
 
 ## 4. 命令行参数
 
@@ -149,9 +137,9 @@ cblas_dgemm = 2.0
 | 依赖 | 位置 |
 |------|------|
 | OpenBLAS | 系统安装 |
-| CLI11 | thirdparty/CLI11/CLI11.hpp |
-| toml++ | thirdparty/toml++/toml.hpp |
-| spdlog | 系统安装 |
+| CLI11  | git submodule |
+| toml++ | git submodule |
+| spdlog | git submodule |
 
 ## 7. 注意事项
 
@@ -182,3 +170,4 @@ cblas_dgemm = 2.0
 - CI/CD 流程变化
 
 **原则:** 所有文档必须保持同步，确保 AI 代理和开发者能准确理解项目状态。
+**注意:** 所有文档必须严格参考README.zh-CN.md中文文档，我会时不时的更新这份文档，其他文档需要以此为依据更新。
