@@ -334,13 +334,12 @@ xmake run cblas_benchmark --help
 
 ### Medium Priority
 - [ ] Add single precision support
-- [ ] Add JSON output format
 - [ ] Add automated multi-size testing
 
 ### Low Priority
 - [ ] Complex number support
 - [ ] Fortran BLAS interface
-- [ ] GPU BLAS support
+- [ ] GPU BLAS support (NVIDIA, AMD, NPU and etc.)
 
 ---
 

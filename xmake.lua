@@ -12,7 +12,7 @@ add_includedirs("thirdparty/CLI11/include")
 add_includedirs("thirdparty/tomlplusplus")
 add_includedirs("thirdparty/spdlog/include")
 
-target("cblas_benchmark")
+target("blas_benchmark")
     set_kind("binary")
     add_files("src/*.cpp")
     add_files("src/**/*.cpp")
