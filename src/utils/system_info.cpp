@@ -78,6 +78,34 @@ std::unordered_map<std::string, std::string> parse_cpuinfo()
     return info;
 }
 
+// Parse cache size string (e.g., "32K", "64K", "8M") into bytes
+std::size_t parse_cache_size(const std::string& size_str)
+{
+    if (size_str.empty())
+    {
+        return 0;
+    }
+
+    std::size_t multiplier = 1;
+    if (size_str.back() == 'K')
+    {
+        multiplier = 1024;
+    }
+    else if (size_str.back() == 'M')
+    {
+        multiplier = 1024 * 1024;
+    }
+
+    try
+    {
+        return std::stoul(size_str) * multiplier;
+    }
+    catch (...)
+    {
+        return 0;
+    }
+}
+
 } // anonymous namespace
 
 SystemInfo SystemInfoCollector::collect() const
@@ -202,116 +230,40 @@ double SystemInfoCollector::get_cpu_freq_mhz() const
     return 0.0;
 }
 
-std::size_t SystemInfoCollector::get_l1_cache() const
+std::size_t SystemInfoCollector::get_cache_for_level(int level, std::size_t default_size) const
 {
 #ifdef __linux__
-    // Read L1 data cache size from sysfs
-    std::string cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index0/size"));
-    if (cache_size.empty())
+    for (int i = 0; i < 8; ++i)
     {
-        cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index1/size"));
-    }
+        std::string base = "/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/";
+        std::string level_str = trim(read_file(base + "level"));
 
-    if (!cache_size.empty())
-    {
-        // Parse size string (e.g., "32K", "64K")
-        std::size_t multiplier = 1;
-        if (cache_size.back() == 'K')
+        if (level_str == std::to_string(level))
         {
-            multiplier = 1024;
-        }
-        else if (cache_size.back() == 'M')
-        {
-            multiplier = 1024 * 1024;
-        }
-
-        try
-        {
-            return std::stoul(cache_size) * multiplier;
-        }
-        catch (...)
-        {
+            std::size_t size = parse_cache_size(trim(read_file(base + "size")));
+            if (size > 0)
+            {
+                return size;
+            }
         }
     }
 #endif
-    // Default L1 cache size (32KB is common)
-    return 32 * 1024;
+    return default_size;
+}
+
+std::size_t SystemInfoCollector::get_l1_cache() const
+{
+    return get_cache_for_level(1, 32 * 1024);
 }
 
 std::size_t SystemInfoCollector::get_l2_cache() const
 {
-#ifdef __linux__
-    // Read L2 cache size from sysfs
-    for (int i = 0; i < 8; ++i)
-    {
-        std::string level_str = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/level"));
-
-        if (level_str == "2")
-        {
-            std::string cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/size"));
-            if (!cache_size.empty())
-            {
-                std::size_t multiplier = 1;
-                if (cache_size.back() == 'K')
-                {
-                    multiplier = 1024;
-                }
-                else if (cache_size.back() == 'M')
-                {
-                    multiplier = 1024 * 1024;
-                }
-
-                try
-                {
-                    return std::stoul(cache_size) * multiplier;
-                }
-                catch (...)
-                {
-                }
-            }
-        }
-    }
-#endif
-    // Default L2 cache size (256KB is common)
-    return 256 * 1024;
+    return get_cache_for_level(2, 256 * 1024);
 }
 
 std::size_t SystemInfoCollector::get_l3_cache() const
 {
-#ifdef __linux__
-    // Read L3 cache size from sysfs
-    for (int i = 0; i < 8; ++i)
-    {
-        std::string level_str = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/level"));
-
-        if (level_str == "3")
-        {
-            std::string cache_size = trim(read_file("/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/size"));
-            if (!cache_size.empty())
-            {
-                std::size_t multiplier = 1;
-                if (cache_size.back() == 'K')
-                {
-                    multiplier = 1024;
-                }
-                else if (cache_size.back() == 'M')
-                {
-                    multiplier = 1024 * 1024;
-                }
-
-                try
-                {
-                    return std::stoul(cache_size) * multiplier;
-                }
-                catch (...)
-                {
-                }
-            }
-        }
-    }
-#endif
-    // Default L3 cache size (8MB is common)
-    return 8 * 1024 * 1024;
+    return get_cache_for_level(3, 8 * 1024 * 1024);
 }
 
 std::size_t SystemInfoCollector::get_total_memory() const

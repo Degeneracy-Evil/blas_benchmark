@@ -56,6 +56,9 @@ public:
     // Get L3 cache size in bytes
     [[nodiscard]] std::size_t get_l3_cache() const;
 
+    // Get cache size for a specific level from sysfs
+    [[nodiscard]] std::size_t get_cache_for_level(int level, std::size_t default_size) const;
+
     // Get total system memory in bytes
     [[nodiscard]] std::size_t get_total_memory() const;
 

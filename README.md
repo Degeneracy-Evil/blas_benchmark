@@ -95,16 +95,16 @@ xmake cleanall
 ### 4.3 Run
 ```bash
 # Show help
-xmake run cblas_benchmark --help
+xmake run blas_benchmark --help
 
 # Basic run
-xmake run cblas_benchmark --level3 1024,1024,1024
+xmake run blas_benchmark --level3 1024,1024,1024
 
 # Full example
-xmake run cblas_benchmark -t 8 -c 10 --level3 2048,2048,2048 -f csv -o results.csv
+xmake run blas_benchmark -t 8 -c 10 --level3 2048,2048,2048 -f csv -o results.csv
 
 # Show system info only
-xmake run cblas_benchmark -s
+xmake run blas_benchmark -s
 ```
 
 ## 5. Testing Recommendations
@@ -178,24 +178,21 @@ blas_benchmark/
 ├── PROGRESS.md                # Development progress
 ├── AGENTS.md                  # AI agent guide
 ├── src
-│   ├── main.cpp               # Entry point + CLI
+│   ├── main.cpp               # Entry point, CLI parsing, output dispatch
 │   ├── benchmark/
-│   │   ├── benchmark.cpp      # Core benchmarking
-│   │   ├── benchmark.h
-│   │   ├── blas_functions.cpp # BLAS wrapper + benchmarks
-│   │   └── blas_functions.h
+│   │   ├── benchmark.h/.cpp   # BenchmarkRunner (run_level1/2/3)
+│   │   └── blas_functions.h/.cpp  # BlasWrapper<T>, flops::*, benchmark_*()
 │   ├── config/
-│   │   ├── config_parser.cpp  # TOML parsing
-│   │   └── config_parser.h
+│   │   └── config_parser.h/.cpp   # ConfigParser, BenchmarkConfig
+│   ├── output/
+│   │   └── output_formatter.h/.cpp # OutputFormatter (markdown/csv)
 │   └── utils/
-│       ├── system_info.cpp    # System info collection
-│       ├── system_info.h
-│       ├── timer.cpp          # High-precision timer
-│       └── timer.h
+│       ├── system_info.h/.cpp     # SystemInfoCollector, SystemInfo
+│       └── timer.h                # Header-only: Timer, flush_cache()
 ├── thirdparty/                # Git submodules
-│   ├── CLI11/                 # Command-line parsing
-│   ├── tomlplusplus/          # TOML parsing
-│   └── spdlog/                # Logging
+│   ├── CLI11/                 # Command-line parsing (header-only)
+│   ├── tomlplusplus/          # TOML parsing (header-only)
+│   └── spdlog/                # Logging (header-only)
 └── xmake.lua                  # Build config
 ```
 

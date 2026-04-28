@@ -95,16 +95,16 @@ xmake cleanall
 ### 4.3 运行
 ```bash
 # 查看帮助
-xmake run cblas_benchmark --help
+xmake run blas_benchmark --help
 
 # 基本运行
-xmake run cblas_benchmark --level3 1024,1024,1024
+xmake run blas_benchmark --level3 1024,1024,1024
 
 # 完整示例
-xmake run cblas_benchmark -t 8 -c 10 --level3 2048,2048,2048 -f csv -o results.csv
+xmake run blas_benchmark -t 8 -c 10 --level3 2048,2048,2048 -f csv -o results.csv
 
 # 仅显示系统信息
-xmake run cblas_benchmark -s
+xmake run blas_benchmark -s
 ```
 
 ## 5. 测试建议
@@ -178,24 +178,21 @@ blas_benchmark/
 ├── PROGRESS.md                # 开发进度记录
 ├── AGENTS.md                  # AI 代理指南
 ├── src
-│   ├── main.cpp               # 程序入口 + CLI
+│   ├── main.cpp               # 程序入口，CLI 解析，输出调度
 │   ├── benchmark/
-│   │   ├── benchmark.cpp      # 基准测试
-│   │   ├── benchmark.h
-│   │   ├── blas_functions.cpp # BLAS 函数封装
-│   │   └── blas_functions.h
+│   │   ├── benchmark.h/.cpp   # BenchmarkRunner (run_level1/2/3)
+│   │   └── blas_functions.h/.cpp  # BlasWrapper<T>, flops::*, benchmark_*()
 │   ├── config/
-│   │   ├── config_parser.cpp  # TOML 配置解析
-│   │   └── config_parser.h
+│   │   └── config_parser.h/.cpp   # ConfigParser, BenchmarkConfig
+│   ├── output/
+│   │   └── output_formatter.h/.cpp # OutputFormatter (markdown/csv)
 │   └── utils/
-│       ├── system_info.cpp    # 系统信息收集
-│       ├── system_info.h
-│       ├── timer.cpp          # 高精度计时
-│       └── timer.h
+│       ├── system_info.h/.cpp     # SystemInfoCollector, SystemInfo
+│       └── timer.h                # Header-only: Timer, flush_cache()
 ├── thirdparty/                # Git submodules
-│   ├── CLI11/                 # 命令行解析
-│   ├── tomlplusplus/          # TOML 解析
-│   └── spdlog/                # 日志库
+│   ├── CLI11/                 # 命令行解析 (header-only)
+│   ├── tomlplusplus/          # TOML 解析 (header-only)
+│   └── spdlog/                # 日志库 (header-only)
 └── xmake.lua                  # Xmake 构建配置
 ```
 

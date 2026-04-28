@@ -1,4 +1,3 @@
-#include <CLI/CLI.hpp>
 #include <cstddef>
 #include <exception>
 #include <filesystem>
@@ -10,10 +9,12 @@
 #include <tuple>
 #include <utility>
 
+#include <CLI/CLI.hpp>
 #include <spdlog/spdlog.h>
 
 #include "benchmark/benchmark.h"
 #include "config/config_parser.h"
+#include "output/output_formatter.h"
 #include "utils/system_info.h"
 
 namespace
