@@ -1,4 +1,4 @@
-#include "output/output_formatter.h"
+#include "output/output_formatter.hpp"
 
 #include <format>
 
@@ -16,17 +16,18 @@ std::string OutputFormatter::to_markdown(const BenchmarkReport& report)
     output += std::format("- **Cores**: {} physical, {} logical\n",
                           report.system_info.physical_cores, report.system_info.cpu_cores);
     output += std::format("- **Cache**: L1={} KB, L2={} KB, L3={} MB\n",
-                          report.system_info.l1_cache / 1024,
-                          report.system_info.l2_cache / 1024,
+                          report.system_info.l1_cache / 1024, report.system_info.l2_cache / 1024,
                           report.system_info.l3_cache / (1024 * 1024));
-    output += std::format("- **Memory**: {:.1f} GB\n",
-                          static_cast<double>(report.system_info.total_memory) / (1024 * 1024 * 1024));
+    output +=
+        std::format("- **Memory**: {:.1f} GB\n",
+                    static_cast<double>(report.system_info.total_memory) / (1024 * 1024 * 1024));
     output += std::format("- **Threads**: {}\n\n", report.config.threads);
 
     // Helper lambda to format a table
-    auto format_table = [&output](const std::string& title, const std::vector<BenchmarkResult>& results)
+    auto format_table =
+        [&output](const std::string& title, const std::vector<BenchmarkResult>& results)
     {
-        if (results.empty())
+        if(results.empty())
         {
             return;
         }
@@ -35,11 +36,11 @@ std::string OutputFormatter::to_markdown(const BenchmarkReport& report)
         output += "| Function | Config | Threads | Min(ms) | Avg(ms) | Max(ms) | GFLOPS |\n";
         output += "|:---------|:-------|:--------|:--------|:--------|:--------|:-------|\n";
 
-        for (const auto& r : results)
+        for(const auto& r : results)
         {
             output += std::format("| {} | {} | {} | {:.3f} | {:.3f} | {:.3f} | {:.2f} |\n",
-                                  r.function_name, r.config_str, r.threads,
-                                  r.min_time_ms, r.avg_time_ms, r.max_time_ms, r.gflops);
+                                  r.function_name, r.config_str, r.threads, r.min_time_ms,
+                                  r.avg_time_ms, r.max_time_ms, r.gflops);
         }
         output += "\n";
     };
@@ -59,27 +60,27 @@ std::string OutputFormatter::to_csv(const BenchmarkReport& report)
     output += "Level,Function,Config,Threads,Min(ms),Avg(ms),Max(ms),GFLOPS\n";
 
     // Level 1 results
-    for (const auto& r : report.level1_results)
+    for(const auto& r : report.level1_results)
     {
-        output += std::format("1,{},{},{},{:.3f},{:.3f},{:.3f},{:.2f}\n",
-                              r.function_name, r.config_str, r.threads,
-                              r.min_time_ms, r.avg_time_ms, r.max_time_ms, r.gflops);
+        output +=
+            std::format("1,{},{},{},{:.3f},{:.3f},{:.3f},{:.2f}\n", r.function_name, r.config_str,
+                        r.threads, r.min_time_ms, r.avg_time_ms, r.max_time_ms, r.gflops);
     }
 
     // Level 2 results
-    for (const auto& r : report.level2_results)
+    for(const auto& r : report.level2_results)
     {
-        output += std::format("2,{},{},{},{:.3f},{:.3f},{:.3f},{:.2f}\n",
-                              r.function_name, r.config_str, r.threads,
-                              r.min_time_ms, r.avg_time_ms, r.max_time_ms, r.gflops);
+        output +=
+            std::format("2,{},{},{},{:.3f},{:.3f},{:.3f},{:.2f}\n", r.function_name, r.config_str,
+                        r.threads, r.min_time_ms, r.avg_time_ms, r.max_time_ms, r.gflops);
     }
 
     // Level 3 results
-    for (const auto& r : report.level3_results)
+    for(const auto& r : report.level3_results)
     {
-        output += std::format("3,{},{},{},{:.3f},{:.3f},{:.3f},{:.2f}\n",
-                              r.function_name, r.config_str, r.threads,
-                              r.min_time_ms, r.avg_time_ms, r.max_time_ms, r.gflops);
+        output +=
+            std::format("3,{},{},{},{:.3f},{:.3f},{:.3f},{:.2f}\n", r.function_name, r.config_str,
+                        r.threads, r.min_time_ms, r.avg_time_ms, r.max_time_ms, r.gflops);
     }
 
     return output;
@@ -87,7 +88,7 @@ std::string OutputFormatter::to_csv(const BenchmarkReport& report)
 
 std::string OutputFormatter::format(const BenchmarkReport& report, const std::string& format)
 {
-    if (format == "csv")
+    if(format == "csv")
     {
         return to_csv(report);
     }

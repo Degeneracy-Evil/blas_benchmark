@@ -1,4 +1,4 @@
-#include "utils/system_info.h"
+#include "utils/system_info.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -6,8 +6,8 @@
 #include <unordered_map>
 
 #ifdef __linux__
-#include <sys/sysinfo.h>
-#include <unistd.h>
+    #include <sys/sysinfo.h>
+    #include <unistd.h>
 #endif
 
 namespace blas_benchmark::utils
@@ -20,7 +20,7 @@ namespace
 std::string read_file(const std::string& path)
 {
     std::ifstream file(path);
-    if (!file.is_open())
+    if(!file.is_open())
     {
         return "";
     }
@@ -33,7 +33,7 @@ std::string read_file(const std::string& path)
 std::string trim(const std::string& str)
 {
     auto start = str.find_first_not_of(" \t\n\r");
-    if (start == std::string::npos)
+    if(start == std::string::npos)
     {
         return "";
     }
@@ -47,26 +47,26 @@ std::unordered_map<std::string, std::string> parse_cpuinfo()
     std::unordered_map<std::string, std::string> info;
 #ifdef __linux__
     std::ifstream file("/proc/cpuinfo");
-    if (!file.is_open())
+    if(!file.is_open())
     {
         return info;
     }
 
     std::string line;
-    while (std::getline(file, line))
+    while(std::getline(file, line)) // NOLINT(bugprone-infinite-loop)
     {
         auto pos = line.find(':');
-        if (pos != std::string::npos)
+        if(pos != std::string::npos)
         {
             std::string key = line.substr(0, pos);
             std::string value = line.substr(pos + 1);
 
             // Trim whitespace
-            while (!key.empty() && (key.back() == ' ' || key.back() == '\t'))
+            while(!key.empty() && (key.back() == ' ' || key.back() == '\t'))
             {
                 key.pop_back();
             }
-            while (!value.empty() && (value.front() == ' ' || value.front() == '\t'))
+            while(!value.empty() && (value.front() == ' ' || value.front() == '\t'))
             {
                 value = value.substr(1);
             }
@@ -81,26 +81,26 @@ std::unordered_map<std::string, std::string> parse_cpuinfo()
 // Parse cache size string (e.g., "32K", "64K", "8M") into bytes
 std::size_t parse_cache_size(const std::string& size_str)
 {
-    if (size_str.empty())
+    if(size_str.empty())
     {
         return 0;
     }
 
     std::size_t multiplier = 1;
-    if (size_str.back() == 'K')
+    if(size_str.back() == 'K')
     {
         multiplier = 1024;
     }
-    else if (size_str.back() == 'M')
+    else if(size_str.back() == 'M')
     {
-        multiplier = 1024 * 1024;
+        multiplier = 1024UL * 1024;
     }
 
     try
     {
         return std::stoul(size_str) * multiplier;
     }
-    catch (...)
+    catch(...)
     {
         return 0;
     }
@@ -129,13 +129,13 @@ std::string SystemInfoCollector::get_cpu_model() const
 #ifdef __linux__
     auto cpuinfo = parse_cpuinfo();
     auto it = cpuinfo.find("model name");
-    if (it != cpuinfo.end())
+    if(it != cpuinfo.end())
     {
         return it->second;
     }
     // Fallback for ARM processors
     it = cpuinfo.find("Hardware");
-    if (it != cpuinfo.end())
+    if(it != cpuinfo.end())
     {
         return it->second;
     }
@@ -156,7 +156,7 @@ int SystemInfoCollector::get_physical_cores() const
     int max_core_id = -1;
 
     std::ifstream file("/proc/cpuinfo");
-    if (!file.is_open())
+    if(!file.is_open())
     {
         return get_cpu_cores(); // Fallback to logical cores
     }
@@ -164,12 +164,12 @@ int SystemInfoCollector::get_physical_cores() const
     std::string line;
     int current_core_id = -1;
 
-    while (std::getline(file, line))
+    while(std::getline(file, line)) // NOLINT(bugprone-infinite-loop)
     {
-        if (line.find("core id") != std::string::npos)
+        if(line.find("core id") != std::string::npos)
         {
             auto pos = line.find(':');
-            if (pos != std::string::npos)
+            if(pos != std::string::npos)
             {
                 current_core_id = std::stoi(line.substr(pos + 1));
                 max_core_id = std::max(max_core_id, current_core_id);
@@ -177,7 +177,7 @@ int SystemInfoCollector::get_physical_cores() const
         }
     }
 
-    if (max_core_id >= 0)
+    if(max_core_id >= 0)
     {
         return max_core_id + 1;
     }
@@ -189,7 +189,7 @@ int SystemInfoCollector::get_threads_per_core() const
 {
     int logical = get_cpu_cores();
     int physical = get_physical_cores();
-    if (physical > 0)
+    if(physical > 0)
     {
         return logical / physical;
     }
@@ -202,27 +202,27 @@ double SystemInfoCollector::get_cpu_freq_mhz() const
     // Try to read from /proc/cpuinfo
     auto cpuinfo = parse_cpuinfo();
     auto it = cpuinfo.find("cpu MHz");
-    if (it != cpuinfo.end())
+    if(it != cpuinfo.end())
     {
         try
         {
             return std::stod(it->second);
         }
-        catch (...)
+        catch(...)
         {
         }
     }
 
     // Try to read max frequency from sysfs
     std::string freq_str = read_file("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
-    if (!freq_str.empty())
+    if(!freq_str.empty())
     {
         try
         {
             // Frequency is in kHz
             return std::stod(freq_str) / 1000.0;
         }
-        catch (...)
+        catch(...)
         {
         }
     }
@@ -233,15 +233,15 @@ double SystemInfoCollector::get_cpu_freq_mhz() const
 std::size_t SystemInfoCollector::get_cache_for_level(int level, std::size_t default_size) const
 {
 #ifdef __linux__
-    for (int i = 0; i < 8; ++i)
+    for(int i = 0; i < 8; ++i)
     {
         std::string base = "/sys/devices/system/cpu/cpu0/cache/index" + std::to_string(i) + "/";
         std::string level_str = trim(read_file(base + "level"));
 
-        if (level_str == std::to_string(level))
+        if(level_str == std::to_string(level))
         {
             std::size_t size = parse_cache_size(trim(read_file(base + "size")));
-            if (size > 0)
+            if(size > 0)
             {
                 return size;
             }
@@ -251,15 +251,9 @@ std::size_t SystemInfoCollector::get_cache_for_level(int level, std::size_t defa
     return default_size;
 }
 
-std::size_t SystemInfoCollector::get_l1_cache() const
-{
-    return get_cache_for_level(1, 32 * 1024);
-}
+std::size_t SystemInfoCollector::get_l1_cache() const { return get_cache_for_level(1, 32 * 1024); }
 
-std::size_t SystemInfoCollector::get_l2_cache() const
-{
-    return get_cache_for_level(2, 256 * 1024);
-}
+std::size_t SystemInfoCollector::get_l2_cache() const { return get_cache_for_level(2, 256 * 1024); }
 
 std::size_t SystemInfoCollector::get_l3_cache() const
 {
@@ -270,7 +264,7 @@ std::size_t SystemInfoCollector::get_total_memory() const
 {
 #ifdef __linux__
     struct sysinfo info;
-    if (sysinfo(&info) == 0)
+    if(sysinfo(&info) == 0)
     {
         return info.totalram * info.mem_unit;
     }
@@ -283,15 +277,15 @@ std::string SystemInfoCollector::get_os_name() const
 {
 #ifdef __linux__
     std::string os_release = read_file("/etc/os-release");
-    if (!os_release.empty())
+    if(!os_release.empty())
     {
         // Extract PRETTY_NAME
         auto pos = os_release.find("PRETTY_NAME=");
-        if (pos != std::string::npos)
+        if(pos != std::string::npos)
         {
             auto start = os_release.find('"', pos);
             auto end = os_release.find('"', start + 1);
-            if (start != std::string::npos && end != std::string::npos)
+            if(start != std::string::npos && end != std::string::npos)
             {
                 return os_release.substr(start + 1, end - start - 1);
             }

@@ -22,7 +22,7 @@ struct BenchmarkConfig
 
     // Test sizes for each BLAS level
     std::optional<std::size_t> level1_size;
-    std::optional<std::pair<int, int>> level2_size;      // (M, N)
+    std::optional<std::pair<int, int>> level2_size;       // (M, N)
     std::optional<std::tuple<int, int, int>> level3_size; // (M, N, K)
 
     // Output configuration

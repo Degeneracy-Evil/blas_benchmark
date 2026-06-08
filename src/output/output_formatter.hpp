@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
+#include "benchmark/benchmark.hpp"
 
-#include "benchmark/benchmark.h"
+#include <string>
 
 namespace blas_benchmark
 {
@@ -18,7 +18,8 @@ public:
     [[nodiscard]] static std::string to_csv(const BenchmarkReport& report);
 
     // Format based on config
-    [[nodiscard]] static std::string format(const BenchmarkReport& report, const std::string& format);
+    [[nodiscard]] static std::string format(const BenchmarkReport& report,
+                                            const std::string& format);
 };
 
 } // namespace blas_benchmark

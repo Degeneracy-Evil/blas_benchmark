@@ -7,6 +7,7 @@ set_languages("c++23")
 set_toolchains("clang")
 
 -- Project include directories
+add_includedirs(".")
 add_includedirs("src")
 add_includedirs("thirdparty/CLI11/include")
 add_includedirs("thirdparty/tomlplusplus")
@@ -16,21 +17,21 @@ target("blas_benchmark")
     set_kind("binary")
     add_files("src/*.cpp")
     add_files("src/**/*.cpp")
-    
+
     -- Use libc++ for C++23 std::print support
     add_cxxflags("-stdlib=libc++")
     add_ldflags("-stdlib=libc++", "-lc++abi")
-    
+
     -- OpenBLAS linkage
-    add_includedirs("/usr/include/x86_64-linux-gnu/openblas-pthread")
+    add_includedirs("/usr/include/x86_64-linux-gnu")
     add_links("openblas")
-    
+
     -- Compiler warnings
-    add_cxxflags("-Wall", "-Wextra", "-Wpedantic")
-    
+    add_cxxflags("-Wall", "-Wextra", "-Wpedantic", "-Werror")
+
     -- Release mode optimizations
     if is_mode("release") then
-        add_cxxflags("-O3", "-march=native", "-ffast-math")
+        add_cxxflags("-O3", "-march=native")
     end
 
 -- Custom clean task for thorough cleanup

@@ -10,7 +10,6 @@ CompileFlags:
     - -I /usr/include/x86_64-linux-gnu/openblas-pthread
   Remove:
     - -march=native
-    - -ffast-math
     - -Wunused-command-line-argument
     - -Wc++23-extensions
 
@@ -21,4 +20,5 @@ Diagnostics:
       - modernize-use-trailing-return-type
       - readability-identifier-length
       - cppcoreguidelines-*
-      - bugprone-*
+      - bugprone-easily-swappable-parameters
+      - bugprone-narrowing-conversions

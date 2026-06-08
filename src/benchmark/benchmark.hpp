@@ -1,5 +1,8 @@
 #pragma once
 
+#include "config/config_parser.hpp"
+#include "utils/system_info.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -8,9 +11,6 @@
 #include <tuple>
 #include <utility>
 #include <vector>
-
-#include "config/config_parser.h"
-#include "utils/system_info.h"
 
 namespace blas_benchmark
 {
@@ -60,23 +60,17 @@ public:
     void set_threads(int num_threads);
 
     // Get cache size for flushing
-    [[nodiscard]] std::size_t get_cache_size() const
-    {
-        return m_cache_size;
-    }
+    [[nodiscard]] std::size_t get_cache_size() const { return m_cache_size; }
 
 private:
     config::BenchmarkConfig m_config;
     utils::SystemInfoCollector m_info_collector;
-    std::size_t m_cache_size{16 * 1024 * 1024}; // Default 16MB
+    std::size_t m_cache_size{16UL * 1024 * 1024}; // Default 16MB
 
     // Run a single benchmark function and collect timing statistics
-    template<typename Func>
-    BenchmarkResult run_single_benchmark(
-        const std::string& name,
-        const std::string& config_str,
-        Func&& benchmark_func,
-        std::size_t flops_count);
+    template <typename Func>
+    BenchmarkResult run_single_benchmark(const std::string& name, const std::string& config_str,
+                                         Func&& benchmark_func, std::size_t flops_count);
 };
 
 } // namespace blas_benchmark

@@ -1,13 +1,12 @@
-#include "benchmark/benchmark.h"
+#include "benchmark/benchmark.hpp"
+
+#include "benchmark/blas_functions.hpp"
+#include "utils/timer.hpp"
 
 #include <algorithm>
 #include <format>
 #include <numeric>
-
 #include <spdlog/spdlog.h>
-
-#include "benchmark/blas_functions.h"
-#include "utils/timer.h"
 
 namespace blas_benchmark
 {
@@ -21,17 +20,16 @@ extern "C" int openblas_get_num_threads();
 
 } // anonymous namespace
 
-BenchmarkRunner::BenchmarkRunner(const config::BenchmarkConfig& config)
-    : m_config(config)
+BenchmarkRunner::BenchmarkRunner(const config::BenchmarkConfig& config) : m_config(config)
 {
     // Calculate cache size for flushing
     auto sys_info = m_info_collector.collect();
     m_cache_size = sys_info.l1_cache + sys_info.l2_cache + sys_info.l3_cache;
 
     // Ensure minimum cache size for flushing
-    if (m_cache_size < 1024 * 1024)
+    if(m_cache_size < 1024UL * 1024)
     {
-        m_cache_size = 16 * 1024 * 1024; // 16MB default
+        m_cache_size = 16UL * 1024 * 1024; // 16MB default
     }
 
     spdlog::info("Cache size for flushing: {} MB", m_cache_size / (1024 * 1024));
@@ -50,26 +48,26 @@ BenchmarkReport BenchmarkRunner::run_all()
     report.config = m_config;
 
     spdlog::info("Starting benchmark on {}", report.system_info.cpu_model);
-    spdlog::info("CPU cores: {} physical, {} logical",
-                 report.system_info.physical_cores, report.system_info.cpu_cores);
+    spdlog::info("CPU cores: {} physical, {} logical", report.system_info.physical_cores,
+                 report.system_info.cpu_cores);
 
     // Set thread count
     set_threads(m_config.threads);
 
     // Run benchmarks for each level
-    if (m_config.level1_size.has_value() && !m_config.level1_functions.empty())
+    if(m_config.level1_size.has_value() && !m_config.level1_functions.empty())
     {
         spdlog::info("Running Level 1 benchmarks...");
         run_level1(report);
     }
 
-    if (m_config.level2_size.has_value() && !m_config.level2_functions.empty())
+    if(m_config.level2_size.has_value() && !m_config.level2_functions.empty())
     {
         spdlog::info("Running Level 2 benchmarks...");
         run_level2(report);
     }
 
-    if (m_config.level3_size.has_value() && !m_config.level3_functions.empty())
+    if(m_config.level3_size.has_value() && !m_config.level3_functions.empty())
     {
         spdlog::info("Running Level 3 benchmarks...");
         run_level3(report);
@@ -78,12 +76,10 @@ BenchmarkReport BenchmarkRunner::run_all()
     return report;
 }
 
-template<typename Func>
-BenchmarkResult BenchmarkRunner::run_single_benchmark(
-    const std::string& name,
-    const std::string& config_str,
-    Func&& benchmark_func,
-    std::size_t flops_count)
+template <typename Func>
+BenchmarkResult
+BenchmarkRunner::run_single_benchmark(const std::string& name, const std::string& config_str,
+                                      Func&& benchmark_func, std::size_t flops_count)
 {
     BenchmarkResult result;
     result.function_name = name;
@@ -97,7 +93,7 @@ BenchmarkResult BenchmarkRunner::run_single_benchmark(
     std::vector<double> times;
     times.reserve(m_config.cycles);
 
-    for (int i = 0; i < m_config.cycles; ++i)
+    for(int i = 0; i < m_config.cycles; ++i)
     {
         double time_ms = benchmark_func();
         times.push_back(time_ms);
@@ -114,8 +110,8 @@ BenchmarkResult BenchmarkRunner::run_single_benchmark(
     double time_sec = result.avg_time_ms / 1000.0;
     result.gflops = static_cast<double>(flops_count) / (time_sec * 1e9);
 
-    spdlog::info("  {} - Avg: {:.3f} ms, Min: {:.3f} ms, Max: {:.3f} ms, GFLOPS: {:.2f}",
-                 name, result.avg_time_ms, result.min_time_ms, result.max_time_ms, result.gflops);
+    spdlog::info("  {} - Avg: {:.3f} ms, Min: {:.3f} ms, Max: {:.3f} ms, GFLOPS: {:.2f}", name,
+                 result.avg_time_ms, result.min_time_ms, result.max_time_ms, result.gflops);
 
     return result;
 }
@@ -125,37 +121,37 @@ void BenchmarkRunner::run_level1(BenchmarkReport& report)
     auto n = m_config.level1_size.value();
     auto config_str = std::format("N={}", n);
 
-    for (const auto& func_name : m_config.level1_functions)
+    for(const auto& func_name : m_config.level1_functions)
     {
         BenchmarkResult result;
 
-        if (func_name == "cblas_ddot")
+        if(func_name == "cblas_ddot")
         {
             result = run_single_benchmark(
                 "ddot", config_str,
                 [this, n]() {
-                    return benchmark_dot<double>(n, m_config.warmup, 1,
-                                                  m_config.flush_cache, m_cache_size);
+                    return benchmark_dot<double>(n, m_config.warmup, 1, m_config.flush_cache,
+                                                 m_cache_size);
                 },
                 flops::dot(n));
         }
-        else if (func_name == "cblas_daxpy")
+        else if(func_name == "cblas_daxpy")
         {
             result = run_single_benchmark(
                 "daxpy", config_str,
                 [this, n]() {
-                    return benchmark_axpy<double>(n, m_config.warmup, 1,
-                                                   m_config.flush_cache, m_cache_size);
+                    return benchmark_axpy<double>(n, m_config.warmup, 1, m_config.flush_cache,
+                                                  m_cache_size);
                 },
                 flops::axpy(n));
         }
-        else if (func_name == "cblas_dscal")
+        else if(func_name == "cblas_dscal")
         {
             result = run_single_benchmark(
                 "dscal", config_str,
                 [this, n]() {
-                    return benchmark_scal<double>(n, m_config.warmup, 1,
-                                                   m_config.flush_cache, m_cache_size);
+                    return benchmark_scal<double>(n, m_config.warmup, 1, m_config.flush_cache,
+                                                  m_cache_size);
                 },
                 flops::scal(n));
         }
@@ -174,17 +170,17 @@ void BenchmarkRunner::run_level2(BenchmarkReport& report)
     auto [m, n] = m_config.level2_size.value();
     auto config_str = std::format("M={},N={}", m, n);
 
-    for (const auto& func_name : m_config.level2_functions)
+    for(const auto& func_name : m_config.level2_functions)
     {
         BenchmarkResult result;
 
-        if (func_name == "cblas_dgemv")
+        if(func_name == "cblas_dgemv")
         {
             result = run_single_benchmark(
                 "dgemv", config_str,
                 [this, m, n]() {
-                    return benchmark_gemv<double>(m, n, m_config.warmup, 1,
-                                                   m_config.flush_cache, m_cache_size);
+                    return benchmark_gemv<double>(m, n, m_config.warmup, 1, m_config.flush_cache,
+                                                  m_cache_size);
                 },
                 flops::gemv(m, n));
         }
@@ -203,17 +199,17 @@ void BenchmarkRunner::run_level3(BenchmarkReport& report)
     auto [m, n, k] = m_config.level3_size.value();
     auto config_str = std::format("M={},N={},K={}", m, n, k);
 
-    for (const auto& func_name : m_config.level3_functions)
+    for(const auto& func_name : m_config.level3_functions)
     {
         BenchmarkResult result;
 
-        if (func_name == "cblas_dgemm")
+        if(func_name == "cblas_dgemm")
         {
             result = run_single_benchmark(
                 "dgemm", config_str,
                 [this, m, n, k]() {
-                    return benchmark_gemm<double>(m, n, k, m_config.warmup, 1,
-                                                   m_config.flush_cache, m_cache_size);
+                    return benchmark_gemm<double>(m, n, k, m_config.warmup, 1, m_config.flush_cache,
+                                                  m_cache_size);
                 },
                 flops::gemm(m, n, k));
         }
