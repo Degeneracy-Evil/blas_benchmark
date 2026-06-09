@@ -1,7 +1,9 @@
 #include "utils/system_info.hpp"
 
 #include <fstream>
+#include <set>
 #include <sstream>
+#include <string>
 #include <thread>
 #include <unordered_map>
 
@@ -151,38 +153,70 @@ int SystemInfoCollector::get_cpu_cores() const
 int SystemInfoCollector::get_physical_cores() const
 {
 #ifdef __linux__
-    // Count unique physical cores from /proc/cpuinfo
-    auto cpuinfo = parse_cpuinfo();
-    int max_core_id = -1;
-
+    // Count unique (physical id, core id) pairs from /proc/cpuinfo
+    // to correctly handle multi-socket systems where core ids
+    // are per-socket (e.g., two sockets each with core id 0-25)
     std::ifstream file("/proc/cpuinfo");
     if(!file.is_open())
     {
-        return get_cpu_cores(); // Fallback to logical cores
+        return get_cpu_cores();
     }
 
+    std::set<std::pair<int, int>> unique_cores;
     std::string line;
-    int current_core_id = -1;
+    int current_physical_id = 0;
+    int current_core_id = 0;
 
     while(std::getline(file, line)) // NOLINT(bugprone-infinite-loop)
     {
-        if(line.find("core id") != std::string::npos)
+        auto pos = line.find(':');
+        if(pos == std::string::npos)
         {
-            auto pos = line.find(':');
-            if(pos != std::string::npos)
+            // Empty line marks end of one processor block
+            unique_cores.emplace(current_physical_id, current_core_id);
+            current_physical_id = 0;
+            current_core_id = 0;
+            continue;
+        }
+
+        std::string key = line.substr(0, pos);
+        std::string value = line.substr(pos + 1);
+        // Trim leading whitespace from value
+        while(!value.empty() && (value.front() == ' ' || value.front() == '\t'))
+        {
+            value = value.substr(1);
+        }
+
+        if(key.find("physical id") != std::string::npos)
+        {
+            try
             {
-                current_core_id = std::stoi(line.substr(pos + 1));
-                max_core_id = std::max(max_core_id, current_core_id);
+                current_physical_id = std::stoi(value);
+            }
+            catch(...)
+            {
+            }
+        }
+        else if(key.find("core id") != std::string::npos)
+        {
+            try
+            {
+                current_core_id = std::stoi(value);
+            }
+            catch(...)
+            {
             }
         }
     }
+    // Don't forget the last processor block (no trailing empty line)
+    unique_cores.emplace(current_physical_id, current_core_id);
 
-    if(max_core_id >= 0)
+    if(!unique_cores.empty())
     {
-        return max_core_id + 1;
+        return static_cast<int>(unique_cores.size());
     }
 #endif
-    return get_cpu_cores(); // Fallback to logical cores
+    return get_cpu_cores();
 }
 
 int SystemInfoCollector::get_threads_per_core() const
@@ -257,7 +291,42 @@ std::size_t SystemInfoCollector::get_l2_cache() const { return get_cache_for_lev
 
 std::size_t SystemInfoCollector::get_l3_cache() const
 {
-    return get_cache_for_level(3, 8 * 1024 * 1024);
+#ifdef __linux__
+    // Count unique physical ids (sockets) from /proc/cpuinfo
+    std::ifstream file("/proc/cpuinfo");
+    if(file.is_open())
+    {
+        std::set<int> sockets;
+        std::string line;
+        while(std::getline(file, line)) // NOLINT(bugprone-infinite-loop)
+        {
+            auto pos = line.find(':');
+            if(pos != std::string::npos)
+            {
+                std::string key = line.substr(0, pos);
+                if(key.find("physical id") != std::string::npos)
+                {
+                    std::string value = line.substr(pos + 1);
+                    while(!value.empty() && (value.front() == ' ' || value.front() == '\t'))
+                    {
+                        value = value.substr(1);
+                    }
+                    try
+                    {
+                        sockets.insert(std::stoi(value));
+                    }
+                    catch(...)
+                    {
+                    }
+                }
+            }
+        }
+        int num_sockets = std::max(1, static_cast<int>(sockets.size()));
+        std::size_t per_socket = get_cache_for_level(3, 8UL * 1024 * 1024);
+        return per_socket * num_sockets;
+    }
+#endif
+    return get_cache_for_level(3, 8UL * 1024 * 1024);
 }
 
 std::size_t SystemInfoCollector::get_total_memory() const
