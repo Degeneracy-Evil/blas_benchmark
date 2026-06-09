@@ -6,21 +6,56 @@ add_rules("mode.debug", "mode.release")
 set_languages("c++23")
 set_toolchains("clang")
 
--- Project include directories
-add_includedirs(".")
-add_includedirs("src")
-add_includedirs("thirdparty/CLI11/include")
-add_includedirs("thirdparty/tomlplusplus")
-add_includedirs("thirdparty/spdlog/include")
+-- ============================================================================
+-- Thirdparty: compiled static libraries from git submodules
+-- ============================================================================
+
+target("spdlog")
+    set_kind("static")
+    set_languages("c++17")
+    add_files("thirdparty/spdlog/src/*.cpp")
+    add_includedirs("thirdparty/spdlog/include", {public = true})
+    add_defines("SPDLOG_COMPILED_LIB", {public = true})
+    add_cxxflags("-stdlib=libc++")
+    add_syslinks("pthread")
+
+target("tomlplusplus")
+    set_kind("static")
+    set_languages("c++17")
+    add_files("thirdparty/tomlplusplus/src/toml.cpp")
+    add_includedirs("thirdparty/tomlplusplus", {public = true})
+    add_defines("TOML_HEADER_ONLY=0", {public = true})
+    add_cxxflags("-stdlib=libc++")
+
+target("cli11")
+    set_kind("static")
+    set_languages("c++17")
+    add_files("thirdparty/CLI11/src/Precompile.cpp")
+    add_includedirs("thirdparty/CLI11/include", {public = true})
+    add_cxxflags("-stdlib=libc++")
+
+-- ============================================================================
+-- Main target
+-- ============================================================================
 
 target("blas_benchmark")
     set_kind("binary")
     add_files("src/*.cpp")
     add_files("src/**/*.cpp")
 
+    add_includedirs(".")
+    add_includedirs("src")
+
     -- Use libc++ for C++23 std::print support
     add_cxxflags("-stdlib=libc++")
     add_ldflags("-stdlib=libc++", "-lc++abi")
+
+    -- Linker and runtime
+    add_ldflags("-fuse-ld=lld")
+    add_cxxflags("-rtlib=compiler-rt")
+
+    -- Link compiled thirdparty libs
+    add_deps("spdlog", "tomlplusplus", "cli11")
 
     -- OpenBLAS linkage
     add_includedirs("/usr/include/x86_64-linux-gnu")
