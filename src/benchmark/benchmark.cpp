@@ -32,7 +32,7 @@ BenchmarkRunner::BenchmarkRunner(const config::BenchmarkConfig& config) : m_conf
         m_cache_size = 16UL * 1024 * 1024; // 16MB default
     }
 
-    spdlog::info("Cache size for flushing: {} MB", m_cache_size / (1024 * 1024));
+    spdlog::info("Cache size for flushing: {} MB", m_cache_size / (1024UL * 1024));
 }
 
 void BenchmarkRunner::set_threads(int num_threads)
@@ -118,7 +118,7 @@ BenchmarkRunner::run_single_benchmark(const std::string& name, const std::string
 
 void BenchmarkRunner::run_level1(BenchmarkReport& report)
 {
-    auto n = m_config.level1_size.value();
+    auto n = m_config.level1_size.value_or(0);
     auto config_str = std::format("N={}", n);
 
     for(const auto& func_name : m_config.level1_functions)
@@ -167,7 +167,7 @@ void BenchmarkRunner::run_level1(BenchmarkReport& report)
 
 void BenchmarkRunner::run_level2(BenchmarkReport& report)
 {
-    auto [m, n] = m_config.level2_size.value();
+    auto [m, n] = m_config.level2_size.value_or(std::make_pair(0, 0));
     auto config_str = std::format("M={},N={}", m, n);
 
     for(const auto& func_name : m_config.level2_functions)
@@ -196,7 +196,7 @@ void BenchmarkRunner::run_level2(BenchmarkReport& report)
 
 void BenchmarkRunner::run_level3(BenchmarkReport& report)
 {
-    auto [m, n, k] = m_config.level3_size.value();
+    auto [m, n, k] = m_config.level3_size.value_or(std::make_tuple(0, 0, 0));
     auto config_str = std::format("M={},N={},K={}", m, n, k);
 
     for(const auto& func_name : m_config.level3_functions)

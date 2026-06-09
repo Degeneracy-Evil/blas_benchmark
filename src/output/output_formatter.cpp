@@ -17,7 +17,7 @@ std::string OutputFormatter::to_markdown(const BenchmarkReport& report)
                           report.system_info.physical_cores, report.system_info.cpu_cores);
     output += std::format("- **Cache**: L1={} KB, L2={} KB, L3={} MB\n",
                           report.system_info.l1_cache / 1024, report.system_info.l2_cache / 1024,
-                          report.system_info.l3_cache / (1024 * 1024));
+                          report.system_info.l3_cache / (1024UL * 1024));
     output +=
         std::format("- **Memory**: {:.1f} GB\n",
                     static_cast<double>(report.system_info.total_memory) / (1024 * 1024 * 1024));

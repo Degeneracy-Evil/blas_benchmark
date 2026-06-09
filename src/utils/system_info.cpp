@@ -102,7 +102,7 @@ std::size_t parse_cache_size(const std::string& size_str)
     {
         return std::stoul(size_str) * multiplier;
     }
-    catch(...)
+    catch(const std::exception&) // NOLINT(bugprone-empty-catch)
     {
         return 0;
     }
@@ -193,7 +193,7 @@ int SystemInfoCollector::get_physical_cores() const
             {
                 current_physical_id = std::stoi(value);
             }
-            catch(...)
+            catch(const std::exception&) // NOLINT(bugprone-empty-catch)
             {
             }
         }
@@ -203,7 +203,7 @@ int SystemInfoCollector::get_physical_cores() const
             {
                 current_core_id = std::stoi(value);
             }
-            catch(...)
+            catch(const std::exception&) // NOLINT(bugprone-empty-catch)
             {
             }
         }
@@ -242,7 +242,7 @@ double SystemInfoCollector::get_cpu_freq_mhz() const
         {
             return std::stod(it->second);
         }
-        catch(...)
+        catch(const std::exception&) // NOLINT(bugprone-empty-catch)
         {
         }
     }
@@ -256,7 +256,7 @@ double SystemInfoCollector::get_cpu_freq_mhz() const
             // Frequency is in kHz
             return std::stod(freq_str) / 1000.0;
         }
-        catch(...)
+        catch(const std::exception&) // NOLINT(bugprone-empty-catch)
         {
         }
     }
@@ -285,9 +285,15 @@ std::size_t SystemInfoCollector::get_cache_for_level(int level, std::size_t defa
     return default_size;
 }
 
-std::size_t SystemInfoCollector::get_l1_cache() const { return get_cache_for_level(1, 32 * 1024); }
+std::size_t SystemInfoCollector::get_l1_cache() const
+{
+    return get_cache_for_level(1, 32UL * 1024);
+}
 
-std::size_t SystemInfoCollector::get_l2_cache() const { return get_cache_for_level(2, 256 * 1024); }
+std::size_t SystemInfoCollector::get_l2_cache() const
+{
+    return get_cache_for_level(2, 256UL * 1024);
+}
 
 std::size_t SystemInfoCollector::get_l3_cache() const
 {
@@ -315,7 +321,7 @@ std::size_t SystemInfoCollector::get_l3_cache() const
                     {
                         sockets.insert(std::stoi(value));
                     }
-                    catch(...)
+                    catch(const std::exception&) // NOLINT(bugprone-empty-catch)
                     {
                     }
                 }

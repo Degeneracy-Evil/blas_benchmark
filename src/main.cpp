@@ -75,7 +75,7 @@ void print_system_info(const blas_benchmark::utils::SystemInfo& info)
     std::println("Frequency:    {:.0f} MHz", info.cpu_freq_mhz);
     std::println("L1 Cache:     {} KB", info.l1_cache / 1024);
     std::println("L2 Cache:     {} KB", info.l2_cache / 1024);
-    std::println("L3 Cache:     {} MB", info.l3_cache / (1024 * 1024));
+    std::println("L3 Cache:     {} MB", info.l3_cache / (1024UL * 1024));
     std::println("Memory:       {:.1f} GB",
                  static_cast<double>(info.total_memory) / (1024.0 * 1024.0 * 1024.0));
     std::println("OS:           {}", info.os_name);
@@ -103,7 +103,7 @@ void write_output(const std::string& content, const std::string& output_file)
 
 } // anonymous namespace
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) // NOLINT(bugprone-exception-escape)
 {
     CLI::App app{"BLAS Benchmark - Performance testing for BLAS operations"};
 
