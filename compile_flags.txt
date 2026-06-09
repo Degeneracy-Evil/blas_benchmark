@@ -1,8 +1,0 @@
--std=c++23
--stdlib=libc++
--I.
--Isrc
--Ithirdparty/CLI11/include
--Ithirdparty/tomlplusplus
--Ithirdparty/spdlog/include
--I/usr/include/x86_64-linux-gnu
